@@ -4,6 +4,6 @@ resource "aws_instance" "test" {
   key_name          = "LondonKP"
   availability_zone = "eu-west-2a"
   tags = {
-    Name = "TerrformTest"
+    Name = "Dev"
   }
 }
