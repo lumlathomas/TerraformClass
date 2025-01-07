@@ -9,3 +9,4 @@ for resource in "${resources[@]}"; do
 done
 
 terraform apply $targets
+#terraform destroy $targets -auto-approve
