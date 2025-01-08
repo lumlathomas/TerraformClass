@@ -1,15 +1,20 @@
 variable "amiid" {
   type = string
   description = "ami-id of the ec2 instance"
-  default = "ami-019374baf467d6601"
+  default = ""
 }
 variable "instancetype" {
   type = string
   description = "instance type of the ec2 instance"
-  default = "t2.micro"
+  default = ""
 }
 variable "keyname" {
   type = string
   description = "keyname of the ec2 instance"
-  default = "LondonKP"
+  default = ""
+}
+variable "az" {
+  type = string
+  description = "availability zone of the ec2 instance"
+  default = ""
 }
