@@ -30,7 +30,7 @@ data "aws_ami" "amzlinux" {
 data "aws_subnet" "selected" {
   filter {
     name   = "tag:Name"
-    values = ["dev_subnet"] # insert value here
+    values = ["subnet-1"] # insert value here
   }
 }
 
@@ -38,7 +38,7 @@ data "aws_subnet" "selected" {
 resource "aws_instance" "dev" {
    ami = data.aws_ami.amzlinux.id
    instance_type ="t2.micro"
-   key_name = "newkey"
+   key_name = "LondonKP"
    subnet_id = data.aws_subnet.selected.id
  
 }
