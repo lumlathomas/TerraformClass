@@ -1,123 +1,78 @@
-provider "aws" {
-  region = "eu-west-2"
-}
+-- Create the database if it does not exist
+CREATE DATABASE IF NOT EXISTS mydatabase;
+USE mydatabase;
 
-# RDS Security Group
-resource "aws_security_group" "rds_sg" {
-  name = "rds-security-group"
+-- Create a table for users
+CREATE TABLE IF NOT EXISTS users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
-  ingress {
-    from_port   = 3306
-    to_port     = 3306
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] # Use restrictive CIDR blocks (e.g., your IP range) for security 82.4.28.120/32
-  }
+-- Create a table for orders
+CREATE TABLE IF NOT EXISTS orders (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    product_name VARCHAR(100) NOT NULL,
+    quantity INT DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
 
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
+-- Insert sample data into users table
+INSERT INTO users (name, email) VALUES
+('Alice', 'alice@example.com'),
+('Bob', 'bob@example.com'),
+('Charlie', 'charlie@example.com');
 
-# RDS Subnet Group
-resource "aws_db_subnet_group" "rds_subnet_group" {
-  name       = "rds-subnet-group"
-  subnet_ids = ["subnet-0100a485def7df111", "subnet-0391c477a05fa0c98"] # Replace with actual subnet IDs
-}
+-- Insert sample data into orders table
+INSERT INTO orders (user_id, product_name, quantity) VALUES
+(1, 'Laptop', 1),
+(2, 'Smartphone', 2),
+(3, 'Headphones', 1);
 
-# MySQL RDS Instance
-resource "aws_db_instance" "my_rds" {
-  identifier             = "my-db-instance"
-  allocated_storage      = 20
-  instance_class         = "db.t3.micro"
-  engine                 = "mysql"
-  engine_version         = "8.0"
-  db_name                = "mydatabase"
-  username               = "admin"
-  password               = "password123" # Use AWS Secrets Manager for production
-  publicly_accessible    = true #chnaged from false
-  skip_final_snapshot    = true
-  vpc_security_group_ids = [aws_security_group.rds_sg.id]
-  db_subnet_group_name   = aws_db_subnet_group.rds_subnet_group.name
-}
-
-# Initialize Database with SQL Script
-resource "null_resource" "db_initializer" {
-  depends_on = [aws_db_instance.my_rds]
-
-  provisioner "local-exec" {
-    command = <<EOT
-mysql -h ${aws_db_instance.my_rds.address} \
-      -u admin \
-      -ppassword123 \
-      -e "source ./initialize_db.sql"
-EOT
-  }
-
-  triggers = {
-    db_instance_id = aws_db_instance.my_rds.id
-  }
-}
+-- Verify data
+SELECT * FROM users;
+SELECT * FROM orders;
 
 
 
-# provider "aws" {
-#   region = "eu-west-2"
-# }
 
-# resource "aws_db_instance" "my_rds" {
-#   identifier             = "my-db-instance"
-#   allocated_storage      = 20
-#   instance_class         = "db.t3.micro"
-#   engine                 = "mysql"
-#   engine_version         = "8.0"
-#   db_name                = "mydatabase"
-#   username               = "admin"
-#   password               = "password123"
-#   publicly_accessible    = false
-#   skip_final_snapshot    = true
-#   vpc_security_group_ids = [aws_security_group.rds_sg.id]
-#   db_subnet_group_name   = aws_db_subnet_group.rds_subnet_group.name
-# }
 
-# resource "aws_security_group" "rds_sg" {
-#   name = "rds-security-group"
+-- -- Switch to the target database
+-- USE mydatabase;
 
-#   ingress {
-#     from_port   = 3306
-#     to_port     = 3306
-#     protocol    = "tcp"
-#     cidr_blocks = ["0.0.0.0/0"]
-#   }
+-- -- Create a table for users
+-- CREATE TABLE users (
+--     id INT AUTO_INCREMENT PRIMARY KEY,
+--     name VARCHAR(50) NOT NULL,
+--     email VARCHAR(100) UNIQUE NOT NULL,
+--     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+-- );
 
-#   egress {
-#     from_port   = 0
-#     to_port     = 0
-#     protocol    = "-1"
-#     cidr_blocks = ["0.0.0.0/0"]
-#   }
-# }
+-- -- Create a table for orders
+-- CREATE TABLE orders (
+--     id INT AUTO_INCREMENT PRIMARY KEY,
+--     user_id INT NOT NULL,
+--     product_name VARCHAR(100) NOT NULL,
+--     quantity INT DEFAULT 1,
+--     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--     FOREIGN KEY (user_id) REFERENCES users(id)
+-- );
 
-# resource "aws_db_subnet_group" "rds_subnet_group" {
-#   name       = "rds-subnet-group"
-#   subnet_ids = ["subnet-0100a485def7df111", "subnet-0391c477a05fa0c98"] #give your region 2 subnet ids
-# }
+-- -- Insert sample data into users table
+-- INSERT INTO users (name, email) VALUES
+-- ('Alice', 'alice@example.com'),
+-- ('Bob', 'bob@example.com'),
+-- ('Charlie', 'charlie@example.com');
 
-# resource "null_resource" "db_initializer" {
-#   depends_on = [aws_db_instance.my_rds]
+-- -- Insert sample data into orders table
+-- INSERT INTO orders (user_id, product_name, quantity) VALUES
+-- (1, 'Laptop', 1),
+-- (2, 'Smartphone', 2),
+-- (3, 'Headphones', 1);
 
-#   provisioner "local-exec" {
-#     command = <<EOT
-# mysql -h ${aws_db_instance.my_rds.address} \
-#       -u admin \
-#       -ppassword123 \
-#       -e "source ./initialize_db.sql"
-# EOT
-#   }
-
-#   triggers = {
-#     db_instance_id = aws_db_instance.my_rds.id
-#   }
-# }
+-- -- Verify data
+-- SELECT * FROM users;
+-- SELECT * FROM orders;
