@@ -1,3 +1,4 @@
+
 -- Switch to the target database
 USE mydatabase;
 

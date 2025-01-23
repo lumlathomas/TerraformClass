@@ -10,3 +10,7 @@
 # documents
 *.doc
 
+.terraform/
+
+*.tfstate.backup
+
